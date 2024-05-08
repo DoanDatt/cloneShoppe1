@@ -5,11 +5,14 @@ import Input from '~/components/Input'
 import { useMutation } from '@tanstack/react-query'
 import { registerAccount } from '~/apis/auth.apis'
 import { omit } from 'lodash'
+import { isAxiosUnprocessableEntityError } from '~/utils/utils'
+import { ResponseApi } from '~/types/utils.type'
 type typeData = Schema
 export default function Register() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors }
   } = useForm<typeData>({
     resolver: yupResolver(schema)
@@ -20,7 +23,35 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerAccountMutation.mutate(body, {
-      onSuccess: (data) => console.log(data)
+      onSuccess: (data) => {
+        console.log(data)
+      },
+      onError: (error) => {
+        if (isAxiosUnprocessableEntityError<ResponseApi<Omit<typeData, 'confirm_password'>>>(error)) {
+          const formError = error.response?.data.data
+          // dùng cho trường hợp nhiều trường (> email và password)
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof Omit<typeData, 'confirm_password'>, {
+                message: formError[key as keyof Omit<typeData, 'confirm_password'>],
+                type: 'Server'
+              })
+            })
+          }
+          // if (formError?.email) {
+          //   setError('email', {
+          //     message: formError.email,
+          //     type: 'Server'
+          //   })
+          // }
+          // if (formError?.password) {
+          //   setError('password', {
+          //     message: formError.password,
+          //     type: 'Server'
+          //   })
+          // }
+        }
+      }
     })
   })
 
@@ -31,7 +62,6 @@ export default function Register() {
           <div className='lg:col-span-2 lg:col-start-4'>
             <form className='bg-white rounded p-10' noValidate onSubmit={onSubmit}>
               <div className='text-2xl'>Đăng Ký</div>
-
               <Input
                 type='email'
                 placeholder='Nhap Email'
