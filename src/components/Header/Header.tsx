@@ -1,11 +1,37 @@
+import { FloatingPortal, arrow, useFloating, shift, offset } from '@floating-ui/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Header() {
+  const [isOpen, setIsOpen] = useState(false)
+  const arrowRef = useRef<HTMLElement>(null)
+  const { refs, floatingStyles, middlewareData } = useFloating({
+    transform: false,
+    middleware: [
+      offset(6),
+      shift(),
+      arrow({
+        element: arrowRef
+      })
+    ]
+  })
+  const showPopover = () => {
+    setIsOpen(true)
+  }
+  const hidePopover = () => {
+    setIsOpen(false)
+  }
   return (
     <div className='pb-5 pt-2 bg-gradient-to-b from-red1 to-orange1'>
       <div className='max-w-7xl mx-auto px-4'>
         <div className='flex justify-end'>
-          <div className='flex items-center py-1 hover:text-gray-300 cursor-pointer'>
+          <div
+            className='flex items-center py-1 hover:text-gray-300 cursor-pointer'
+            ref={refs.setReference}
+            onMouseEnter={showPopover}
+            onMouseLeave={hidePopover}
+          >
             <svg
               xmlns='http://www.w3.org/2000/svg'
               fill='none'
@@ -31,7 +57,37 @@ export default function Header() {
             >
               <path strokeLinecap='round' strokeLinejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' />
             </svg>
+            <FloatingPortal>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    ref={refs.setFloating}
+                    style={floatingStyles}
+                    initial={{ opacity: 0, transform: 'scale(0)' }}
+                    animate={{ opacity: 1, transform: 'scale(1)' }}
+                    exit={{ opacity: 0, transform: 'scale(0)' }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span
+                      ref={arrowRef}
+                      style={{
+                        left: middlewareData.arrow?.x,
+                        top: middlewareData.arrow?.y
+                      }}
+                      className='border-x-transparent border-t-transparent border-b-white border-[11px] absolute translate-y-[-96%] z-10  '
+                    ></span>
+                    <div className='bg-white relative shadow-md rounded-sm  border-gray-200'>
+                      <div className='flex flex-col py-2 px-3'>
+                        <button className='py-2 px-3 hover:text-orange'>Vietnamese</button>
+                        <button className='py-2 px-3 hover:text-orange'>English</button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </FloatingPortal>
           </div>
+
           <div>
             <div className='flex items-center py-1 hover:text-gray-300 cursor-pointer'>
               <div className='w-6 h-6 mr-2 flex-shrink-0'>
@@ -85,13 +141,13 @@ export default function Header() {
                 xmlns='http://www.w3.org/2000/svg'
                 fill='none'
                 viewBox='0 0 24 24'
-                stroke-width='1.5'
+                strokeWidth='1.5'
                 stroke='currentColor'
                 className='w-8 h-8'
               >
                 <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
                   d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z'
                 />
               </svg>
