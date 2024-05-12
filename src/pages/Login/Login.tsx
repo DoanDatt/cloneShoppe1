@@ -52,7 +52,7 @@ export default function Register() {
         <div className='grid grid-cols-1 lg:grid-cols-5 py-12 lg:py-32 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>
             <form className='bg-white rounded p-10' noValidate onSubmit={onSubmit}>
-              <div className='text-2xl'>Đăng Ký</div>
+              <div className='text-2xl'>Đăng Nhập</div>
               <Input
                 type='email'
                 placeholder='Nhap Email'
