@@ -5,11 +5,16 @@ import Input from '~/components/Input'
 import { Login } from '~/apis/auth.apis'
 import { useMutation } from '@tanstack/react-query'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
-import { ResponseApi } from '~/types/utils.type'
+import { ErrorResponseApi } from '~/types/utils.type'
+import { useContext } from 'react'
+import { AppContext } from '~/contexts/app.context'
+import { useNavigate } from 'react-router-dom'
 
 type typeData = Omit<Schema, 'confirm_password'>
 const loginschema = schema.omit(['confirm_password'])
 export default function Register() {
+  const navigate = useNavigate()
+  const { setIsAuthenticated } = useContext(AppContext)
   const {
     register,
     handleSubmit,
@@ -26,11 +31,12 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     console.log(data)
     LoginAccountMutation.mutate(data, {
-      onSuccess: (data) => {
-        console.log(data)
+      onSuccess: () => {
+        setIsAuthenticated(true)
+        navigate('/')
       },
       onError: (error) => {
-        if (isAxiosUnprocessableEntityError<ResponseApi<typeData>>(error)) {
+        if (isAxiosUnprocessableEntityError<ErrorResponseApi<typeData>>(error)) {
           const formError = error.response?.data.data
           if (formError) {
             Object.keys(formError).forEach((key) => {

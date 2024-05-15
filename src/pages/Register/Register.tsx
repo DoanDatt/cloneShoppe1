@@ -6,9 +6,14 @@ import { useMutation } from '@tanstack/react-query'
 import { registerAccount } from '~/apis/auth.apis'
 import { omit } from 'lodash'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
-import { ResponseApi } from '~/types/utils.type'
+import { ErrorResponseApi } from '~/types/utils.type'
+import { useContext } from 'react'
+import { AppContext } from '~/contexts/app.context'
+import { useNavigate } from 'react-router-dom'
 type typeData = Schema
 export default function Register() {
+  const { setIsAuthenticated } = useContext(AppContext)
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -23,11 +28,12 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerAccountMutation.mutate(body, {
-      onSuccess: (data) => {
-        console.log(data)
+      onSuccess: () => {
+        setIsAuthenticated(true)
+        navigate('/')
       },
       onError: (error) => {
-        if (isAxiosUnprocessableEntityError<ResponseApi<Omit<typeData, 'confirm_password'>>>(error)) {
+        if (isAxiosUnprocessableEntityError<ErrorResponseApi<Omit<typeData, 'confirm_password'>>>(error)) {
           const formError = error.response?.data.data
           // dùng cho trường hợp nhiều trường (> email và password)
           if (formError) {
