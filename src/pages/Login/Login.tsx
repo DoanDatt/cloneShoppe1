@@ -9,6 +9,7 @@ import { ErrorResponseApi } from '~/types/utils.type'
 import { useContext } from 'react'
 import { AppContext } from '~/contexts/app.context'
 import { useNavigate } from 'react-router-dom'
+import Button from '~/components/Button'
 
 type typeData = Omit<Schema, 'confirm_password'>
 const loginschema = schema.omit(['confirm_password'])
@@ -29,7 +30,6 @@ export default function Register() {
     mutationFn: (body: Omit<typeData, 'confirm_password'>) => Login(body)
   })
   const onSubmit = handleSubmit((data) => {
-    console.log(data)
     LoginAccountMutation.mutate(data, {
       onSuccess: () => {
         setIsAuthenticated(true)
@@ -75,7 +75,13 @@ export default function Register() {
                 errorMessage={errors.password?.message}
               />
               <div className='mt-8'>
-                <button className='bg-orange p-4 w-full text-white hover:bg-red-600 border-none'>Đăng Nhập</button>
+                <Button
+                  className='bg-orange p-4 w-full text-white hover:bg-red-600 border-none flex items-center justify-center '
+                  isLoading={LoginAccountMutation.isLoading}
+                  disabled={LoginAccountMutation.isLoading}
+                >
+                  Đăng Nhập
+                </Button>
               </div>
               <div className='mt-5 text-center'>
                 <p className='text-gray-300'>

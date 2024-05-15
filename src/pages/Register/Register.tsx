@@ -10,6 +10,7 @@ import { ErrorResponseApi } from '~/types/utils.type'
 import { useContext } from 'react'
 import { AppContext } from '~/contexts/app.context'
 import { useNavigate } from 'react-router-dom'
+import Button from '~/components/Button'
 type typeData = Schema
 export default function Register() {
   const { setIsAuthenticated } = useContext(AppContext)
@@ -91,7 +92,13 @@ export default function Register() {
                 errorMessage={errors.confirm_password?.message}
               />
               <div className='mt-8'>
-                <button className='bg-orange p-4 w-full text-white hover:bg-red-600 border-none'>Đăng Ký</button>
+                <Button
+                  className='bg-orange p-4 w-full text-white hover:bg-red-600 border-none flex items-center justify-center'
+                  isLoading={registerAccountMutation.isLoading}
+                  disabled={registerAccountMutation.isLoading}
+                >
+                  Đăng Ký
+                </Button>
               </div>
               <div className='mt-5 text-center'>
                 <p className='text-gray-300'>
