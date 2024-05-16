@@ -9,11 +9,12 @@ import { isAxiosUnprocessableEntityError } from '~/utils/utils'
 import { ErrorResponseApi } from '~/types/utils.type'
 import { useContext } from 'react'
 import { AppContext } from '~/contexts/app.context'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '~/components/Button'
+import path from '~/constants/path'
 type typeData = Schema
 export default function Register() {
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
   const {
     register,
@@ -29,8 +30,9 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerAccountMutation.mutate(body, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       },
       onError: (error) => {
@@ -102,7 +104,10 @@ export default function Register() {
               </div>
               <div className='mt-5 text-center'>
                 <p className='text-gray-300'>
-                  Bạn đã có tài khoản? <span className='text-orange'>Đăng Nhập</span>
+                  Bạn đã có tài khoản?{' '}
+                  <span className='text-orange'>
+                    <Link to={path.login}>Đăng Nhập</Link>
+                  </span>
                 </p>
               </div>
             </form>

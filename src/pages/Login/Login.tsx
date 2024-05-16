@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Schema, schema } from '~/utils/rules'
 import Input from '~/components/Input'
-import { Login } from '~/apis/auth.apis'
+import { login } from '~/apis/auth.apis'
 import { useMutation } from '@tanstack/react-query'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
 import { ErrorResponseApi } from '~/types/utils.type'
@@ -10,12 +10,14 @@ import { useContext } from 'react'
 import { AppContext } from '~/contexts/app.context'
 import { useNavigate } from 'react-router-dom'
 import Button from '~/components/Button'
+import path from '../../constants/path'
+import { Link } from 'react-router-dom'
 
 type typeData = Omit<Schema, 'confirm_password'>
 const loginschema = schema.omit(['confirm_password'])
-export default function Register() {
+export default function Login() {
   const navigate = useNavigate()
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const {
     register,
     handleSubmit,
@@ -27,12 +29,13 @@ export default function Register() {
   })
 
   const LoginAccountMutation = useMutation({
-    mutationFn: (body: Omit<typeData, 'confirm_password'>) => Login(body)
+    mutationFn: (body: Omit<typeData, 'confirm_password'>) => login(body)
   })
   const onSubmit = handleSubmit((data) => {
     LoginAccountMutation.mutate(data, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         setIsAuthenticated(true)
+        setProfile(data.data.data.user)
         navigate('/')
       },
       onError: (error) => {
@@ -85,7 +88,10 @@ export default function Register() {
               </div>
               <div className='mt-5 text-center'>
                 <p className='text-gray-300'>
-                  Bạn chưa có tài khoản? <span className='text-orange'>Đăng Ký</span>
+                  Bạn chưa có tài khoản?{' '}
+                  <span className='text-orange'>
+                    <Link to={path.register}>Đăng Ký</Link>
+                  </span>
                 </p>
               </div>
             </form>
