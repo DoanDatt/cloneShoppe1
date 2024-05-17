@@ -77,7 +77,6 @@ export default function Register() {
                 name='email'
                 register={register}
                 errorMessage={errors.email?.message}
-                classname='mt-3'
               />
               <Input
                 type='password'
