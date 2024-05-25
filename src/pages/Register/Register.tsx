@@ -12,7 +12,9 @@ import { AppContext } from '~/contexts/app.context'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '~/components/Button'
 import path from '~/constants/path'
-type typeData = Schema
+// type typeData = Schema
+type typeData = Pick<Schema, 'email' | 'password' | 'confirm_password'>
+const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
 export default function Register() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
   const navigate = useNavigate()
@@ -22,7 +24,7 @@ export default function Register() {
     setError,
     formState: { errors }
   } = useForm<typeData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(registerSchema)
   })
   const registerAccountMutation = useMutation({
     mutationFn: (body: Omit<typeData, 'confirm_password'>) => authApi.registerAccount(body)

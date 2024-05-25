@@ -13,8 +13,8 @@ import Button from '~/components/Button'
 import path from '../../constants/path'
 import { Link } from 'react-router-dom'
 
-type typeData = Omit<Schema, 'confirm_password'>
-const loginschema = schema.omit(['confirm_password'])
+type typeData = Pick<Schema, 'email' | 'password'>
+const loginschema = schema.pick(['email', 'password'])
 export default function Login() {
   const navigate = useNavigate()
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
