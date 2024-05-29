@@ -7,6 +7,8 @@ import MainLayout from './layouts/MainLayout'
 import Profile from './pages/Profile'
 import { useContext } from 'react'
 import { AppContext } from './contexts/app.context'
+import path from './constants/path'
+import ProductDetails from './pages/ProductDetail'
 
 function ProtectedRoute() {
   const { isAuthenticated } = useContext(AppContext)
@@ -43,6 +45,15 @@ export default function RouteElement() {
           )
         }
       ]
+    },
+    {
+      path: path.ProductDetail,
+      index: true,
+      element: (
+        <MainLayout>
+          <ProductDetails />
+        </MainLayout>
+      )
     },
     {
       path: '',
