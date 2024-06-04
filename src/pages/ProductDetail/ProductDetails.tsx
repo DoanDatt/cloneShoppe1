@@ -5,8 +5,9 @@ import { useParams } from 'react-router-dom'
 import productApi from '~/apis/products.api'
 import InputNumber from '~/components/InputNumber'
 import ProductRating from '~/components/ProductRating'
-import { Product } from '~/types/products.type'
+import { Product as ProductType } from '~/types/products.type'
 import { formatCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } from '~/utils/utils'
+import Product from '../ProductList/components/Product'
 
 export default function ProductDetails() {
   const { nameId } = useParams()
@@ -23,6 +24,17 @@ export default function ProductDetails() {
     [product, currentIndexImages]
   )
 
+  const queryConfig = { limit: '20', page: '1', category: product?.category._id }
+  const { data: productsData } = useQuery({
+    queryKey: ['product', queryConfig],
+    queryFn: () => {
+      return productApi.getProducts(queryConfig)
+    },
+    staleTime: 3 * 60 * 1000,
+    enabled: Boolean(product)
+  })
+  console.log(productsData)
+
   const imageRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
@@ -34,7 +46,7 @@ export default function ProductDetails() {
     setActiveImage(img)
   }
   const next = () => {
-    if (currentIndexImages[1] < (product as Product).images.length) {
+    if (currentIndexImages[1] < (product as ProductType).images.length) {
       setCurrentIndexImages((prev) => [prev[0] + 1, prev[1] + 1])
     }
   }
@@ -228,6 +240,20 @@ export default function ProductDetails() {
               <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
             </div>
           </div>
+        </div>
+      </div>
+      <div className='mt-8 '>
+        <div className='container'>
+          <div className='uppercase text-gray-400 '>Có thể bạn cũng thích</div>
+          {productsData && (
+            <div className='mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3'>
+              {productsData.data.data.products.map((product) => (
+                <div className='col-span-1' key={product._id}>
+                  <Product product={product} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

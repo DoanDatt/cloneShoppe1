@@ -60,7 +60,7 @@ export default function Header() {
     })
   })
   return (
-    <div className='pb-5 pt-2 bg-gradient-to-b from-red1 to-orange1'>
+    <div className='pb-5 pt-2 bg-gradient-to-b from-red1 to-orange1 '>
       <div className='max-w-7xl mx-auto px-4'>
         <div className='flex justify-end'>
           <Popover
