@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -8,6 +8,9 @@ import { Product as ProductType } from '~/types/products.type'
 import { formatCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } from '~/utils/utils'
 import Product from '../ProductList/components/Product'
 import QuantityController from '~/components/QuantityController'
+import purchaseApi from '~/apis/purchase'
+import { purchasesStatus } from '~/constants/purchase'
+import { toast } from 'react-toastify'
 
 export default function ProductDetails() {
   const { nameId } = useParams()
@@ -38,6 +41,7 @@ export default function ProductDetails() {
 
   const imageRef = useRef<HTMLImageElement>(null)
 
+  const addToCartMutation = useMutation(purchaseApi.addToCart)
   useEffect(() => {
     if (product && product.images.length > 0) {
       setActiveImage(product.images[0])
@@ -82,6 +86,19 @@ export default function ProductDetails() {
 
   const handleRemoveZoom = () => {
     imageRef.current?.removeAttribute('style')
+  }
+  const queryClient = useQueryClient()
+
+  const addToCart = () => {
+    addToCartMutation.mutate(
+      { buy_count: buyCount, product_id: product?._id as string },
+      {
+        onSuccess: (data) => {
+          toast.success(data.data.message, { autoClose: 1000 })
+          queryClient.invalidateQueries({ queryKey: ['purchases', { status: purchasesStatus.inCart }] })
+        }
+      }
+    )
   }
   if (!product) return null
 
@@ -189,7 +206,10 @@ export default function ProductDetails() {
               </div>
 
               <div className='mt-8 flex items-center'>
-                <button className='px-4 h-12 flex items-center justify-center border border-orange text-orange bg-orange/10 capitalize shadow-sm hover:bg-orange/5'>
+                <button
+                  className='px-4 h-12 flex items-center justify-center border border-orange text-orange bg-orange/10 capitalize shadow-sm hover:bg-orange/5'
+                  onClick={addToCart}
+                >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     fill='none'

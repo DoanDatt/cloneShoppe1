@@ -1,6 +1,6 @@
 import { Link, createSearchParams, useNavigate } from 'react-router-dom'
 import Popover from '../Popover'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import authApi from '~/apis/auth.apis'
 import { useContext } from 'react'
 import { AppContext } from '~/contexts/app.context'
@@ -11,7 +11,10 @@ import { useForm } from 'react-hook-form'
 import { Schema, schema } from '~/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { omit } from 'lodash'
-
+import purchaseApi from '~/apis/purchase'
+import { purchasesStatus } from '~/constants/purchase'
+import noProduct from '~/assets/noproduct.png'
+import { formatCurrency } from '~/utils/utils'
 type FormData = Pick<Schema, 'name'>
 
 const nameSchema = schema.pick(['name'])
@@ -34,6 +37,14 @@ export default function Header() {
     }
   })
 
+  const { data: purchasesInCartData } = useQuery({
+    queryKey: ['purchases', { status: purchasesStatus.inCart }],
+    queryFn: () => purchaseApi.getPurchase({ status: purchasesStatus.inCart })
+  })
+
+  const MAX_PURCHASES = 5
+
+  const purchasesInCart = purchasesInCartData?.data.data || []
   const handleLogout = () => {
     logoutMutation.mutate()
   }
@@ -184,99 +195,37 @@ export default function Header() {
               renderPopover={
                 <div className='bg-white relative shadow-md rounded-sm  border-gray-200 max-w-[400px] text-sm'>
                   <div className='p-4'>
-                    <div className='text-gray-300 capitalize'>Sản phẩm mới thêm</div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            alt='product image'
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lshuyyqe6wm182_tn'
-                            className='w-11 h-11'
-                          />
-                        </div>
+                    {purchasesInCart ? (
+                      <div className='p-2'>
+                        <div className='text-gray-300 capitalize'>Sản phẩm mới thêm</div>
+                        <div className='mt-5'>
+                          {purchasesInCart.slice(0, MAX_PURCHASES).map((purchases) => (
+                            <div className='mt-2 py-2 px-2 flex hover:bg-gray-200' key={purchases._id}>
+                              <div className='flex-shrink-0'>
+                                <img alt={purchases.product.name} src={purchases.product.image} className='w-11 h-11' />
+                              </div>
 
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>Đồng hồ đèn Led điện tử phong cách dễ thương dễ xem giờ DH19</div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>₫19.000</span>
+                              <div className='flex-grow ml-2 overflow-hidden'>
+                                <div className='truncate'>{purchases.product.name}</div>
+                              </div>
+                              <div className='ml-2 flex-shrink-0'>
+                                <span className='text-orange'>₫{formatCurrency(purchases.price)}</span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            alt='product image'
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lshuyyqe6wm182_tn'
-                            className='w-11 h-11'
-                          />
-                        </div>
-
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>Đồng hồ đèn Led điện tử phong cách dễ thương dễ xem giờ DH19</div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>₫19.000</span>
-                        </div>
+                    ) : (
+                      <div className='flex items-center justify-center w-[300px] h-[300px] p-2 ml-7'>
+                        <img src={noProduct} alt='no product' className='w-20 h-20' />
+                        <div className='capitalize mt-3'>Chưa có sản phẩm</div>
                       </div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            alt='product image'
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lshuyyqe6wm182_tn'
-                            className='w-11 h-11'
-                          />
-                        </div>
-
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>Đồng hồ đèn Led điện tử phong cách dễ thương dễ xem giờ DH19</div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>₫19.000</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            alt='product image'
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lshuyyqe6wm182_tn'
-                            className='w-11 h-11'
-                          />
-                        </div>
-
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>Đồng hồ đèn Led điện tử phong cách dễ thương dễ xem giờ DH19</div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>₫19.000</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='mt-5'>
-                      <div className='mt-4 flex'>
-                        <div className='flex-shrink-0'>
-                          <img
-                            alt='product image'
-                            src='https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lshuyyqe6wm182_tn'
-                            className='w-11 h-11'
-                          />
-                        </div>
-
-                        <div className='flex-grow ml-2 overflow-hidden'>
-                          <div className='truncate'>Đồng hồ đèn Led điện tử phong cách dễ thương dễ xem giờ DH19</div>
-                        </div>
-                        <div className='ml-2 flex-shrink-0'>
-                          <span className='text-orange'>₫19.000</span>
-                        </div>
-                      </div>
-                    </div>
+                    )}
                     <div className='flex mt-6 justify-between items-center'>
-                      <div className='capitalize text-xs text-gray-500'>Thêm vào giỏ hàng</div>
+                      <div className='text-xs capitalize text-gray-500'>
+                        {purchasesInCart.length > MAX_PURCHASES ? purchasesInCart.length - MAX_PURCHASES : ''} Thêm hàng
+                        vào giỏ
+                      </div>{' '}
                       <button className='capitalize bg-orange py-2 shadow-sm  text-white hover:bg-opacity-90 px-4 '>
                         Xem giỏ hàng
                       </button>
@@ -285,7 +234,7 @@ export default function Header() {
                 </div>
               }
             >
-              <Link to='/cart'>
+              <Link to='/cart' className='relative'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'
@@ -300,6 +249,9 @@ export default function Header() {
                     d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z'
                   />
                 </svg>
+                <span className='absolute px-[9px] py-[1px] top-[-5px] left-[20px] rounded-full bg-white text-orange'>
+                  {purchasesInCart.length}
+                </span>
               </Link>
             </Popover>
           </div>
